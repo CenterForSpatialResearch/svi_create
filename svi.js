@@ -80,7 +80,8 @@ var colorScale = d3.scaleLinear()
 
 //SECTION 2
 //2 datasets/loading
-var counties = d3.json("NYCensusTract.geojson")
+// var counties = d3.json("NYCensusTract.geojson")
+ var counties = d3.json("temp.geojson")
 var svi = d3.csv("SVINewYork2018_CensusTract.csv")
 
 
@@ -98,10 +99,12 @@ function ready(counties,svi){
 	//initial formatting of data
     var dataByFIPS = turnToDictFIPS(svi)
     var combinedGeojson = combineGeojson(dataByFIPS,counties)
-    pub.all = counties
+    pub.all = combinedGeojson
+//	console.log(counties)
+	console.log(combinedGeojson)
 
 	//draw the map
-	var map = drawMap(combinedGeojson)
+	var map = drawMap(counties)
 
 	//once everything is loaded, color the map
     map.once("idle",function(){ colorByPriority(map)})
@@ -138,6 +141,7 @@ function ready(counties,svi){
             .style("background-color",themeColors[themeName])
             .on("click",function(){
                     var id = d3.select(this).attr("id")
+					console.log(id)
 		            var themeGroup = d3.select(this).attr("theme")
 					//whenever a metric is clicked, check if it is on or off currently, and toggle to opposite
 	                if(toggleDictionary[id]==false){
@@ -177,7 +181,7 @@ function drawList(data){
     .enter()
     .append("text")
     .attr("class","ranked")
-    .attr("id",function(d){return d.county.replace(".","_").split(" ").join("_")})
+    .attr("id",function(d){return "_"+d.county})
     .attr("county",function(d){return d.county})
     .attr("x",function(d,i){return 20})
     .attr("y",function(d,i){return parseInt(d.order)*12})
@@ -195,7 +199,7 @@ function updateList(data){
     .each(function(d,i){
        var c = d3.select(this).attr("county")
 
-        d3.selectAll("#"+d.county.replace(".","_").split(" ").join("_"))
+        d3.selectAll("#_"+d.county)
          .transition()
          .duration(1000)
          .delay(i*20)
@@ -214,7 +218,8 @@ function rankCounties(){
     for(var c in pub.all.features){
         var state = pub.all.features[c].properties["ST_ABBR"]
         if(state== pub.currentState){
-            var county = pub.all.features[c].properties.county
+			var countyFIPS =  pub.all.features[c].properties.countyFIPS
+            var county = pub.all.features[c].properties.FIPS//.replace(countyFIPS,"")
             var tally = pub.all.features[c].properties.tally
             countiesInState.push({county:county,tally:tally})
         }
@@ -286,7 +291,7 @@ function turnToDictFIPS(data){
 
 //combine svi (i.e. all) with counties
 function combineGeojson(all,counties){
-  console.log();
+  
   //get column names from first object
     var propertyKeys = Object.keys(all[Object.keys(all)[0]])
     // var propertyKeys = Object.keys(all[0])
@@ -298,12 +303,12 @@ function combineGeojson(all,counties){
     var excludeKeys = ["ST_ABBR","STATE","ST","AREA_SQMI","COUNTY","LOCATION"]
 
     for(var c in counties.features){
-
-	        var countyFIPS = counties.features[c].properties.BoroCT2010
-	        var data = all[countyFIPS]
-	       // console.log(data)
-	        counties.features[c]["id"]=countyFIPS
-	        var population = counties.features[c].properties.totalPopulation
+			
+			var countyFIPS = counties.features[c].properties.STCNTY
+	        var tractFIPS = counties.features[c].properties.FIPS.replace(countyFIPS,"")
+	        var data = all[tractFIPS]
+	        counties.features[c]["id"]=tractFIPS
+	        //var population = counties.features[c].properties.totalPopulation
 	        //for now PR is undefined
 	        if(data!=undefined){
 	            var keys = Object.keys(data)
@@ -334,13 +339,13 @@ function combineGeojson(all,counties){
 	            counties.features[c].properties["tally"]=parseFloat(data["SPL_THEMES"])
 	        }
 		}
-
+		console.log(counties)
     return counties
 }
 
 //this draws the map, adds counties, and adds the pop up to the map
 function drawMap(data){//,outline){
- console.log(data);
+ 	console.log(data);
 
 	//makes new map in the #map div
 	d3.select("#map")
@@ -351,10 +356,10 @@ function drawMap(data){//,outline){
     var maxBounds = [[-190,8],[-20, 74]];
     map = new mapboxgl.Map({
         container: 'map',
-        style:"mapbox://styles/c4sr-gsapp/ckcnnqpsa2rxx1hp4fhb1j357",//newest
+        style:"mapbox://styles/c4sr-gsapp/ckpwtdzjv4ty617llc8vp12gu",
         maxZoom:18,
-        zoom: 6,
-		center:[-75,42],
+        zoom: 5,
+		center:[-73.87,40.656],
         preserveDrawingBuffer: true,
         minZoom:3.5,
         maxBounds: maxBounds
@@ -374,12 +379,17 @@ function drawMap(data){//,outline){
              'type': 'fill',
              'source': 'counties',
              'paint': {
-             'fill-color': "white",
-                 'fill-opacity':0
+             'fill-color': "red",
+                 'fill-opacity':1
              }
-         },"ST-OUTLINE");
-       	map.setFilter("counties",["==","stateAbbr","NY"])
+         });
+       //	map.setFilter("counties",["==","stateAbbr","NY"])
+		 
+		 
+		  console.log(map.getStyle().layers)
+		 
      })
+
 
      var popup = new mapboxgl.Popup({
          closeButton: false,
@@ -391,7 +401,7 @@ function drawMap(data){//,outline){
 	 //detects mouse on counties layer inorder to get data for where mouse is
      map.on('mousemove', 'counties', function(e) {
          var feature = e.features[0]
-		 //console.log(feature)
+		// console.log(feature)
          map.getCanvas().style.cursor = 'pointer';
 
          if(feature["properties"].FIPS!=undefined){
@@ -419,8 +429,8 @@ function drawMap(data){//,outline){
 
 
             //this section sets the text content of the popup
-             var countyName = feature["properties"]["county"]+" County, "+feature["properties"]["stateAbbr"]
-             var population = feature["properties"]["totalPopulation"]
+             var countyName = feature["properties"]["COUNTY"]+" County, "+feature["properties"]["ST_ABBR"]
+             var population = feature["properties"]["E_TOTPOP"]
              var displayString = countyName+"<br> Population: "+population+"<br>"
              var activeTally = 0
              var activeCount = 0
@@ -447,7 +457,7 @@ function drawMap(data){//,outline){
 
 //this is called when map is idle after first loading and then everytime the tally is changed
 function colorByPriority(map){
-
+	console.log(pub.all)
     map.getSource('counties').setData(pub.all);
     map.setPaintProperty("counties", 'fill-opacity',1)
 
