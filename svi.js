@@ -81,7 +81,7 @@ var colorScale = d3.scaleLinear()
 //SECTION 2
 //2 datasets/loading
 // var counties = d3.json("NYCensusTract.geojson")
- var counties = d3.json("temp.geojson")
+ var counties = d3.json("nyc.geojson")
 var svi = d3.csv("SVINewYork2018_CensusTract.csv")
 
 
@@ -358,7 +358,7 @@ function drawMap(data){//,outline){
         container: 'map',
         style:"mapbox://styles/c4sr-gsapp/ckpwtdzjv4ty617llc8vp12gu",
         maxZoom:18,
-        zoom: 5,
+        zoom: 10,
 		center:[-73.87,40.656],
         preserveDrawingBuffer: true,
         minZoom:3.5,
