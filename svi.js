@@ -44,22 +44,22 @@ var themeDisplayText = {
     "EPL_PCI":"Per capita income estimate",
     "EPL_UNEMP":"Civilian (age 16+) unemployed estimate",
     "EPL_NOHSDP":"Persons with no high school diploma (age25+) estimate",
-    
+
     "EPL_AGE17":"Persons aged 17 and younger estimate",
     "EPL_AGE65":"Persons aged 65 and older estimate",
     "EPL_DISABL":"Civilian noninstitutionalized population with a disability estimate",
     "EPL_SNGPNT":"Single parent households with children under 18 estimate",
-    
-    
+
+
     "EPL_LIMENG":"of persons (age 5+) who speak English \"less than well\" estimate",
     "EPL_MINRTY":"minority (all persons except white, non - Hispanic) estimate",
-    
+
     "EPL_CROWD":"households with more people than rooms estimate",
     "EPL_GROUPQ":"Persons in group quarters estimate",
     "EPL_MOBILE":"mobile homes estimate",
     "EPL_MUNIT":"housing in structures with 10 or more units estimate",
     "EPL_NOVEH":"households with no vehicle available estimate"
-    
+
 }
 
 //colors for the lefthand checklist
@@ -80,8 +80,8 @@ var colorScale = d3.scaleLinear()
 
 //SECTION 2
 //2 datasets/loading
-var counties = d3.json("counties.geojson")
-var svi = d3.csv("SVI2018_US_COUNTY.csv")
+var counties = d3.json("NYCensusTract.geojson")
+var svi = d3.csv("SVINewYork2018_CensusTract.csv")
 
 
 Promise.all([counties,svi])
@@ -94,29 +94,29 @@ Promise.all([counties,svi])
 //SECTION 3
 //main function after loading data - everything stems from the ready function right now
 function ready(counties,svi){
-	
+
 	//initial formatting of data
     var dataByFIPS = turnToDictFIPS(svi)
     var combinedGeojson = combineGeojson(dataByFIPS,counties)
     pub.all = counties
-	
+
 	//draw the map
 	var map = drawMap(combinedGeojson)
-	
+
 	//once everything is loaded, color the map
     map.once("idle",function(){ colorByPriority(map)})
 
 	//set everything on the check list to true to start - all things are on and included in overall svi
     for(var n in measures){toggleDictionary[measures[n]]=true}
     d3.select("#activeThemesText").html("Showing sum of all "+pub.activeThemes.length+" themes.")
-	
-	
+
+
 	//sort according to current state and draw the list of counties on the right accordingly
     var sorted = rankCounties()
     drawList(sorted)
-    
-	
-	
+
+
+
 	//for the leftside - draw each of the themes and the metrics under the themes
     for(var g in groups){//for each theme, add title
         var themeName = g
@@ -125,9 +125,9 @@ function ready(counties,svi){
             .append("div")
             .attr("id",themeName)
             .html(themeName+": "+themeGroupDisplayText[themeName])
-        
+
         for(var t in themeContent){//for each metric under theme, add the name of the metric
-            
+
             d3.select("#measures")
             .append("div")
             .attr("id",themeContent[t])
@@ -143,19 +143,19 @@ function ready(counties,svi){
 	                if(toggleDictionary[id]==false){
 	                    d3.select(this).style("background-color",themeColors[themeGroup])
 	                    toggleDictionary[id]=true
-						
+
 	                }else{
 	                    d3.select(this).style("background-color","#aaa")
 	                    toggleDictionary[id]=false
 	                }
-						
+
 					//recalculate the overal SVI accordingly
 					//sort and update the list on the right of ranked counties
 					//recolor the map
 	                    calculateTally(toggleDictionary)
 	                    updateList(rankCounties())
 	                    colorByPriority(map)
-						
+
             		})
         }
     }
@@ -189,12 +189,12 @@ function drawList(data){
 }
 function updateList(data){
      var svg = d3.select("#rankings svg").data(data)//.append("svg").attr("width",200).attr("height",data.length*12)
-   
+
     d3.selectAll(".ranked")//.remove()
     .data(data)
     .each(function(d,i){
        var c = d3.select(this).attr("county")
-   
+
         d3.selectAll("#"+d.county.replace(".","_").split(" ").join("_"))
          .transition()
          .duration(1000)
@@ -204,9 +204,11 @@ function updateList(data){
 		.text(function(d){
 			return (i+1)+". "+d.county+" "+Math.round(d.tally*10000)/10000
 		})
-        
+
     })
 }
+
+//ranks all counties by svi?
 function rankCounties(){
     var countiesInState =[]
     for(var c in pub.all.features){
@@ -241,59 +243,71 @@ function calculateTally(toggleDictionary){
                 activeThemesText+=t
             }
             index+=1
-            
+
         }
-            
-    }  
+
+    }
     if(pub.activeThemes.length==measures.length){
         d3.select("#activeThemesText").html("Showing sum of all "+pub.activeThemes.length+" themes.")
-        
+
     }else{
         d3.select("#activeThemesText").html("Showing sum of "+pub.activeThemes.length+" themes.")
     }
-    
-    
+
+
     for(var i in pub.all.features){
         var tally = 0
         for(var t in toggleDictionary){
             if(toggleDictionary[t]==true){
                 tally+=parseFloat(pub.all.features[i].properties[t])
             }
-                
+
         }
         pub.all.features[i].properties["tally"]=parseFloat(tally)
     }
 }
 
-//this formats the datasets and combins them for use - needs to be adjusted for new data, definitedly need to be improved
+//this formats the datasets and combins them for use - needs to be adjusted for new data, definitedly need to be improved\
+//converts svi to a Dictionary with FIPS as the key
 function turnToDictFIPS(data){
     var fipsDict = {}
     for(var i in data){
+      //need to change from FIPS to
         var fips = data[i]["FIPS"]
-        fipsDict[fips]=data[i]
+        //grab last 6 characters
+        if(fips){
+          fips = fips.substring(fips.length - 6)
+          fipsDict[fips]=data[i]
+        }
+
     }
     return fipsDict
 }
+
+//combine svi (i.e. all) with counties
 function combineGeojson(all,counties){
-    var propertyKeys = Object.keys(all["10001"])
+  console.log();
+  //get column names from first object
+    var propertyKeys = Object.keys(all[Object.keys(all)[0]])
+    // var propertyKeys = Object.keys(all[0])
     for(var p in propertyKeys){
         var pkey = propertyKeys[p]
         minMaxDictionary[pkey]={max:0,min:99999}
     }
-    
+
     var excludeKeys = ["ST_ABBR","STATE","ST","AREA_SQMI","COUNTY","LOCATION"]
-    
+
     for(var c in counties.features){
-		
-	        var countyFIPS = counties.features[c].properties.FIPS
+
+	        var countyFIPS = counties.features[c].properties.BoroCT2010
 	        var data = all[countyFIPS]
 	       // console.log(data)
 	        counties.features[c]["id"]=countyFIPS
 	        var population = counties.features[c].properties.totalPopulation
 	        //for now PR is undefined
-	        if(data!=undefined){            
+	        if(data!=undefined){
 	            var keys = Object.keys(data)
-            
+
 	            for(var k in keys){
 	                var key = keys[k]
 	                 var value = data[key]
@@ -309,31 +323,31 @@ function combineGeojson(all,counties){
 	                if(value==-999 || value==999){
 	                    value = 0
 	                }
-               
-                
+
+
 	                if(isNaN(value)==false){
 	                    value = parseFloat(value)
 	                }
 	                counties.features[c].properties[key]=value
-                
+
 	            }
 	            counties.features[c].properties["tally"]=parseFloat(data["SPL_THEMES"])
 	        }
 		}
-       
+
     return counties
 }
 
 //this draws the map, adds counties, and adds the pop up to the map
 function drawMap(data){//,outline){
-    
-	
+ console.log(data);
+
 	//makes new map in the #map div
 	d3.select("#map")
         .style("width",window.innerWidth+"px")
         .style("height",window.innerHeight+"px")
     mapboxgl.accessToken = "pk.eyJ1IjoiYzRzci1nc2FwcCIsImEiOiJja2J0ajRtNzMwOHBnMnNvNnM3Ymw5MnJzIn0.fsTNczOFZG8Ik3EtO9LdNQ"
-    
+
     var maxBounds = [[-190,8],[-20, 74]];
     map = new mapboxgl.Map({
         container: 'map',
@@ -343,9 +357,10 @@ function drawMap(data){//,outline){
 		center:[-75,42],
         preserveDrawingBuffer: true,
         minZoom:3.5,
-        maxBounds: maxBounds    
+        maxBounds: maxBounds
     });
-	 //add a layer called counties from the geojson and 
+
+	 //add a layer called counties from the geojson and
      map.on("load",function(){
         map.addControl(new mapboxgl.NavigationControl(),'bottom-right');
         map.dragRotate.disable();
@@ -353,7 +368,7 @@ function drawMap(data){//,outline){
              "type":"geojson",
              "data":data
          })
-                  
+
          map.addLayer({
              'id': 'counties',
              'type': 'fill',
@@ -362,30 +377,30 @@ function drawMap(data){//,outline){
              'fill-color': "white",
                  'fill-opacity':0
              }
-         },"ST-OUTLINE");	 
+         },"ST-OUTLINE");
        	map.setFilter("counties",["==","stateAbbr","NY"])
      })
 
      var popup = new mapboxgl.Popup({
          closeButton: false,
          closeOnClick: false
-     });     
-     
+     });
+
 
 
 	 //detects mouse on counties layer inorder to get data for where mouse is
      map.on('mousemove', 'counties', function(e) {
          var feature = e.features[0]
 		 //console.log(feature)
-         map.getCanvas().style.cursor = 'pointer'; 
-		 
+         map.getCanvas().style.cursor = 'pointer';
+
          if(feature["properties"].FIPS!=undefined){
-            
-             
-			 
+
+
+
 			 //this section just sets the x and y of the popup
-             var x = event.clientX+20; 
-             var y = event.clientY+20;             
+             var x = event.clientX+20;
+             var y = event.clientY+20;
              var w = window.innerWidth;
              var h = window.innerHeight;
              if(x+200>w){
@@ -396,16 +411,16 @@ function drawMap(data){//,outline){
              }else if(y-200<150){
                  y = 150
              }
-             
+
               d3.select("#mapPopup").style("visibility","visible")
               .style("left",x+"px")
-              .style("top",y+"px") 
-			 
-			 
-			 
+              .style("top",y+"px")
+
+
+
             //this section sets the text content of the popup
              var countyName = feature["properties"]["county"]+" County, "+feature["properties"]["stateAbbr"]
-             var population = feature["properties"]["totalPopulation"]                         
+             var population = feature["properties"]["totalPopulation"]
              var displayString = countyName+"<br> Population: "+population+"<br>"
              var activeTally = 0
              var activeCount = 0
@@ -419,13 +434,13 @@ function drawMap(data){//,outline){
 			 	+Math.round(activeTally*10000)/10000
 			 	+" out of possible "+ activeCount
              d3.select("#mapPopup").html(displayString)
-         }       
-         
+         }
+
 		 //when mouseleaves, popup is hidden
          map.on("mouseleave",'counties',function(){
              d3.select("#mapPopup").style("visibility","hidden")
-         })  
-		 
+         })
+
           });
           return map
 }
@@ -435,7 +450,7 @@ function colorByPriority(map){
 
     map.getSource('counties').setData(pub.all);
     map.setPaintProperty("counties", 'fill-opacity',1)
-    
+
     var matchString = {
     property: "tally",
     stops: [[0,"#ddd"],[0.00001, "green"],[pub.activeThemes.length/2,"gold"],[pub.activeThemes.length, "red"]]
@@ -444,4 +459,3 @@ function colorByPriority(map){
     d3.select("#coverage").style("display","block")
 }
 //ENZ ////////////////////////////////////////////////////////
-
