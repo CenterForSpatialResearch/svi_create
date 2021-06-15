@@ -64,7 +64,7 @@ var themeDisplayText = {
 
 //colors for the lefthand checklist
 var themeColors = {
-    THEME1:"#87c8e1",
+    THEME1:"#aaaaaa",
     THEME2:"#3d85a4",
     THEME3:"#4bacdd",
     THEME4:"#658994"
@@ -138,14 +138,15 @@ function ready(counties,svi){
             .attr("theme",themeName)
             .html(themeDisplayText[themeContent[t]])
             .style("cursor","pointer")
-            .style("background-color",themeColors[themeName])
+			.style("border","1px solid black")
+            .style("background-color","#fff")//themeColors[themeName])
             .on("click",function(){
                     var id = d3.select(this).attr("id")
 					console.log(id)
 		            var themeGroup = d3.select(this).attr("theme")
 					//whenever a metric is clicked, check if it is on or off currently, and toggle to opposite
 	                if(toggleDictionary[id]==false){
-	                    d3.select(this).style("background-color",themeColors[themeGroup])
+	                    d3.select(this).style("background-color","#fff")//themeColors[themeGroup])
 	                    toggleDictionary[id]=true
 
 	                }else{
@@ -463,7 +464,7 @@ function colorByPriority(map){
 
     var matchString = {
     property: "tally",
-    stops: [[0,"#ddd"],[0.00001, "green"],[pub.activeThemes.length/2,"gold"],[pub.activeThemes.length, "red"]]
+    stops: [[0,"#ddd"],[0.00001, "#00B140"],[pub.activeThemes.length/2,"#F4AE00"],[pub.activeThemes.length, "#E4002B"]]
     }
     map.setPaintProperty("counties", 'fill-color', matchString)
     d3.select("#coverage").style("display","block")
