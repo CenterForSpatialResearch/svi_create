@@ -12,7 +12,7 @@
   <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
   <link href='https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css' rel='stylesheet' />
-  
+
   <link href='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css' rel='stylesheet' />
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
 
@@ -25,8 +25,8 @@
 <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
 
-<script src="https://code.jquery.com/jquery-1.12.4.min.js" 
-        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" 
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
         crossorigin="anonymous">
 </script>
 <script src="js/jquery.mousefollow.js"></script>
@@ -45,11 +45,14 @@
 
 <div id="byState"></div>
 <div id="nav">
- 
-  <div id="cartogram"></div>     
-  
+
+  <div id="cartogram"></div>
+	<div id="mainTitle" class="menu">
+	 	Defining Vulnerability
+		</div>
   <div id="activeThemesText" class="menu">text
-  </div> 
+  </div>
+
   <div id="allocationTitle" class="menu">
    Click below to turn individual categories on and off
   </div>
@@ -57,21 +60,21 @@
   </div>
   <div id="infoText" class="menu">
 
-    Columns used in this map have the prefixes below:<br>  
+    Columns used in this map have the prefixes below:<br>
       EPL_ = Percentile percentage of each category<br>
       SPL_THEME = sum of EPLs in each of the 4 themes<br>
       SPL_THEMES = sum of all SPL THEMEs<br>
   </div>
 
 </div>
-  
+
 <div id="rankingsTitle">Counties ranked by current selection from most vulnerable to least</div>
 <div id="rankings"></div>
 
 <div id="map"></div>
 <div id="mapPopup"></div>
-  
- 
+
+
 
 
 

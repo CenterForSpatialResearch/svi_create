@@ -359,15 +359,15 @@ function drawMap(data){//,outline){
     mapboxgl.accessToken = "pk.eyJ1IjoiYzRzci1nc2FwcCIsImEiOiJja2J0ajRtNzMwOHBnMnNvNnM3Ymw5MnJzIn0.fsTNczOFZG8Ik3EtO9LdNQ"
 
     var maxBounds = [
-      [-74.535258, 40.485374], // Southwest coordinates
-      [-73.389334, 40.931799] // Northeast coordinates
+      [-74.635258, 40.485374], // Southwest coordinates
+      [-73.289334, 40.931799] // Northeast coordinates
     ];
     map = new mapboxgl.Map({
         container: 'map',
         style:"mapbox://styles/c4sr-gsapp/ckpwtdzjv4ty617llc8vp12gu",
         maxZoom:15,
         zoom: 10,
-		center:[-73.87,40.656],
+		center:[-73.9848148987994, 40.75630990049773],
         preserveDrawingBuffer: true,
         minZoom:1,
         maxBounds: maxBounds
@@ -435,11 +435,11 @@ function drawMap(data){//,outline){
               .style("top",y+"px")
 
 
-
             //this section sets the text content of the popup
-             var countyName = feature["properties"]["COUNTY"]+" County, "+feature["properties"]["ST_ABBR"]
+            var location = feature["properties"]["LOCATION"]
+             //var countyName = feature["properties"]["COUNTY"]+" County, "+feature["properties"]["ST_ABBR"]
              var population = feature["properties"]["E_TOTPOP"]
-             var displayString = countyName+"<br> Population: "+population+"<br>"
+             var displayString = "<b>"+location+"</b>" + "<br> Population: "+population+"<br>"
              var activeTally = 0
              var activeCount = 0
              for(var t in toggleDictionary){
