@@ -116,7 +116,6 @@ function ready(counties,svi){
 
 	//sort according to current state and draw the list of counties on the right accordingly
     var sorted = rankCounties()
-    //join top 10 and bottom 10
     drawList (sorted);
 
 
@@ -176,7 +175,10 @@ function ready(counties,svi){
 
 //these 3 functions below draws the ranked/sorted list to the right and updates it when something changes
 function drawList(data){
-    data = (data.slice(0,10)).concat(data.slice(-10))
+    console.log(Object.keys(data))
+    data = data.filter(function(nullnum){
+      return nullnum.tally !="-999"}) //filter out tally with -999
+    data = (data.slice(0,10)).concat(data.slice(-10))  //join top 10 and bottom 10
     d3.select("#rankings svg").remove()
     var svg = d3.select("#rankings").append("svg").attr("width",200).attr("height",data.length*12+12)
     svg.selectAll(".ranked")
@@ -189,9 +191,11 @@ function drawList(data){
     .attr("x",function(d,i){return 20})
     //.attr("y",function(d,i){return parseInt(d.order)*12})
     .attr("y",function(d,i){return parseInt(data.indexOf(d))*12})
-    .text(function(d,i){return (parseInt(d.order)+1)+". "+d.county+" "+ Math.round(d.tally*10000)/10000})
+    //.text(function(d,i){return (parseInt(d.order)+1)+". Tract "+d.county.toString().slice(-6)+", "+d.countyName+" "+ Math.round(d.tally*10000)/10000})
+    .text(function(d,i){return (parseInt(d.order)+1)+". "+d.countyName.slice(7,-16)+" "+ Math.round(d.tally*10000)/10000})
     .attr("transform","translate(0,20)")
     .attr("fill",function(d){
+      console.log(data);
         return colorScale(d.tally)
     })
 }
@@ -223,19 +227,20 @@ function rankCounties(){
     for(var c in pub.all.features){
         var state = pub.all.features[c].properties["ST_ABBR"]
         if(state== pub.currentState){
-			var countyFIPS =  pub.all.features[c].properties.countyFIPS
+			var countyName =  pub.all.features[c].properties.LOCATION
             var county = pub.all.features[c].properties.FIPS//.replace(countyFIPS,"")
             var tally = pub.all.features[c].properties.tally
-            countiesInState.push({county:county,tally:tally})
+            countiesInState.push({county:county,tally:tally,countyName:countyName})
         }
     }
     var sorted = countiesInState.sort(function(a,b){
+      console.log(countyName)
         return parseFloat(b.tally)-parseFloat(a.tally)
     })
     for(var s in sorted){
         sorted[s]["order"]=s
     }
-    console.log(sorted)
+    //console.log(sorted)
    return sorted
 }
 
