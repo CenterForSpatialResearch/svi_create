@@ -70,10 +70,37 @@ var themeColors = {
     THEME4:"#658994"
 }
 
+
+var data = [{"color":"green","value":0},{"color":"gold","value":125},{"color":"red","value":250}];
+var extent = d3.extent(data, d => d.value);
+
+var padding = 5;
+var width = 320;
+var innerWidth = width - (padding * 2);
+var barHeight = 15;
+var height = 15;
+
 //this is the color scale for list on the right, it should match the map
 var colorScale = d3.scaleLinear()
-    .domain([0,measures.length/2,measures.length])
     .range(["green","gold","red"])
+    .domain([0,measures.length/2,measures.length])
+
+var svg = d3.select("body").append("svg").attr("width", width).attr("height", height).attr("id", "footerKey");
+var g = svg.append("g");
+
+var defs = svg.append("defs");
+var linearGradient = defs.append("linearGradient").attr("id", "Gradient");
+linearGradient.selectAll("stop")
+    .data(data)
+    .enter().append("stop")
+    .attr("offset", d => ((d.value - extent[0]) / (extent[1] - extent[0]) * 100) + "%")
+    .attr("stop-color", d => d.color);
+
+g.append("rect")
+    .attr("width", innerWidth)
+    .attr("height", barHeight)
+    .style("fill", "url(#Gradient)");
+
 
 //END SECTION 1 ////////////////////////////////////////////////////////
 
@@ -175,7 +202,7 @@ function ready(counties,svi){
 
 //these 3 functions below draws the ranked/sorted list to the right and updates it when something changes
 function drawList(data){
-    console.log(Object.keys(data))
+    //console.log(Object.keys(data))
     data = data.filter(function(nullnum){
       return nullnum.tally !="-999"}) //filter out tally with -999
     data = (data.slice(0,10)).concat(data.slice(-10))  //join top 10 and bottom 10
@@ -195,7 +222,6 @@ function drawList(data){
     .text(function(d,i){return (parseInt(d.order)+1)+". "+d.countyName.slice(7,-16)+" "+ Math.round(d.tally*10000)/10000})
     .attr("transform","translate(0,20)")
     .attr("fill",function(d){
-      console.log(data);
         return colorScale(d.tally)
     })
 }
@@ -234,7 +260,6 @@ function rankCounties(){
         }
     }
     var sorted = countiesInState.sort(function(a,b){
-      console.log(countyName)
         return parseFloat(b.tally)-parseFloat(a.tally)
     })
     for(var s in sorted){
@@ -380,6 +405,7 @@ function drawMap(data){//,outline){
 
 	 //add a layer called counties from the geojson and
      map.on("load",function(){
+        console.log();
         map.addControl(new mapboxgl.NavigationControl(),'bottom-right');
         map.dragRotate.disable();
         map.addSource("counties",{
@@ -394,9 +420,11 @@ function drawMap(data){//,outline){
              'paint': {
              'fill-color': "red",
                  'fill-opacity':1
-             }
+             },
+             "filter": ["!=", "E_TOTPOP", 0] // filter out no population
          });
        //	map.setFilter("counties",["==","stateAbbr","NY"])
+
 
 
 		  //console.log(map.getStyle().layers)
@@ -473,7 +501,6 @@ function colorByPriority(map){
 	//console.log(pub.all)
     map.getSource('counties').setData(pub.all);
     map.setPaintProperty("counties", 'fill-opacity',1)
-
     var matchString = {
     property: "tally",
     stops: [[0,"#ddd"],[0.00001, "green"],[pub.activeThemes.length/2,"gold"],[pub.activeThemes.length, "red"]]
