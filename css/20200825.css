@@ -332,7 +332,24 @@ select{
      margin:10px;
      background-color:none;
      border-bottom:1px solid #ddd;
-
+ }
+ #footerKey{
+	 z-index:0;
+	 background-color:none;
+	 bottom: 40px;
+	 position: fixed;
+	 align-content: center;
+	 left: 340px;
+ }
+ #footerKeyText{
+	z-index:0;
+	background-color:none;
+	bottom: 20px;
+	position: fixed;
+	align-content: center;
+	left: 340px;
+	font-size: 12px;
+	font-weight:400;
  }
 
  #mainMenu{
