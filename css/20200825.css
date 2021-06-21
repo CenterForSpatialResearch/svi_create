@@ -338,7 +338,7 @@ select{
 	 background-color:none;
 	 bottom: 40px;
 	 position: fixed;
-	 align-content: center;
+	 /* align-content: center; */
 	 left: 340px;
  }
  #footerKeyText{
@@ -346,7 +346,7 @@ select{
 	background-color:none;
 	bottom: 20px;
 	position: fixed;
-	align-content: center;
+	/* align-content: center; */
 	left: 340px;
 	font-size: 12px;
 	font-weight:400;

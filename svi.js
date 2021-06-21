@@ -398,20 +398,40 @@ function drawMap(data){//,outline){
         style:"mapbox://styles/c4sr-gsapp/ckpwtdzjv4ty617llc8vp12gu",
         maxZoom:15,
         zoom: 10,
-		center:[-73.9848148987994, 40.75630990049773],
+		    center:[-73.9848148987994, 40.75630990049773],
         preserveDrawingBuffer: true,
         minZoom:1,
         maxBounds: maxBounds
     });
 
-	 //add a layer called counties from the geojson and
+  var hoverCountyID = null;
+
+	 // add a layer called counties from the geojson and
      map.on("load",function(){
-        console.log();
         map.addControl(new mapboxgl.NavigationControl(),'bottom-right');
         map.dragRotate.disable();
         map.addSource("counties",{
              "type":"geojson",
              "data":data
+         })
+
+
+
+// JIA: This is where I tried to add another hover outline layer
+         map.addLayer({
+           'id': 'hoverOutline',
+           'type': 'line',
+           'source': 'counties',
+           'layout': {},
+           'paint': {
+             'line-color': 'white',
+             'line-width': [
+               'case',
+               ['boolean', ['feature-state', 'hover'], false],
+               10,
+               0
+             ]
+           }
          })
 
          map.addLayer({
@@ -423,22 +443,51 @@ function drawMap(data){//,outline){
                  'fill-opacity':1
              },
              "filter": ["!=", "E_TOTPOP", 0] // filter out no population
-         });
+         })
        //	map.setFilter("counties",["==","stateAbbr","NY"])
 
+		  console.log(map.getStyle().layers)
+    //  map.moveLayer('hoverOutline','counties'); // This was to try to bring the outline to the top
 
+      //JIA: below follows the hover example - https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+      // When the user moves their mouse over the state-fill layer, we'll update the
+      // feature state for the feature under the mouse.
+      map.on('mousemove', 'hoverOutline', function (e) {
+        if (e.features.length > 0) {
+          if (hoverCountyID !== null) {
+            map.setFeatureState(
+              { source: "counties", id: hoverCountyID
+             },
+              { hover: false }
+            );
+          }
+          hoverCountyID = e.features[0].id;
+        //  console.log(e.features[0])
+          map.setFeatureState(
+            { source: "counties", id: hoverCountyID },
+            { hover: true }
+          )
+        }
+      })
 
-		  //console.log(map.getStyle().layers)
-
+      // When the mouse leaves the state-fill layer, update the feature state of the
+      // previously hovered feature.
+      map.on('mouseleave', 'hoverOutline', function () {
+        if (hoverCountyID !== null) {
+          map.setFeatureState(
+            { source: "counties",
+              id: hoverCountyID },
+            { hover: false }
+          )
+        }
+        hoverCountyID = null;
+      })
      })
-
 
      var popup = new mapboxgl.Popup({
          closeButton: false,
          closeOnClick: false
      });
-
-
 
 	 //detects mouse on counties layer inorder to get data for where mouse is
      map.on('mousemove', 'counties', function(e) {
@@ -447,8 +496,6 @@ function drawMap(data){//,outline){
          map.getCanvas().style.cursor = 'pointer';
 
          if(feature["properties"].FIPS!=undefined){
-
-
 
 			 //this section just sets the x and y of the popup
              var x = event.clientX+20;
