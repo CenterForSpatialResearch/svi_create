@@ -5,7 +5,15 @@
 //color map with new sums
 //sort list with new sums
 //////////////////////////////////////////////////////////
-
+//TODO
+//style list
+//style popup with more info - rank and also individual categories
+//style toggles
+//write intro/subtitle
+//add style to title 
+//do observations - make case studies
+//push left div down 10 px
+//add grid to key- 
 
 //SECTION 1
 //Setup variables, may still need some cleaning to get rid of unused ones
@@ -40,25 +48,47 @@ var themeGroupDisplayText = {
     THEME4:"Housing Type & Transportation"
 }
 var themeDisplayText = {
-    "EPL_POV":"Persons below poverty estimate",
-    "EPL_PCI":"Per capita income estimate",
-    "EPL_UNEMP":"Civilian (age 16+) unemployed estimate",
-    "EPL_NOHSDP":"Persons with no high school diploma (age25+) estimate",
+    "EPL_POV":"Persons below poverty",
+    "EPL_PCI":"Per capita income",
+    "EPL_UNEMP":"Civilian (age 16+) unemployed",
+    "EPL_NOHSDP":"Persons with no high school diploma",
 
-    "EPL_AGE17":"Persons aged 17 and younger estimate",
-    "EPL_AGE65":"Persons aged 65 and older estimate",
-    "EPL_DISABL":"Civilian noninstitutionalized population with a disability estimate",
-    "EPL_SNGPNT":"Single parent households with children under 18 estimate",
+    "EPL_AGE17":"Persons aged 17 and younger",
+    "EPL_AGE65":"Persons aged 65 and older",
+    "EPL_DISABL":"Persons with a disability",
+    "EPL_SNGPNT":"Single parent households with children under 18",
 
 
-    "EPL_LIMENG":"of persons (age 5+) who speak English \"less than well\" estimate",
-    "EPL_MINRTY":"minority (all persons except white, non - Hispanic) estimate",
+    "EPL_LIMENG":"Persons who speak English \"less than well\"",
+    "EPL_MINRTY":"Minority persons",
 
-    "EPL_CROWD":"households with more people than rooms estimate",
-    "EPL_GROUPQ":"Persons in group quarters estimate",
-    "EPL_MOBILE":"mobile homes estimate",
-    "EPL_MUNIT":"housing in structures with 10 or more units estimate",
-    "EPL_NOVEH":"households with no vehicle available estimate"
+    "EPL_CROWD":"Households with more people than rooms",
+    "EPL_GROUPQ":"Persons in group quarters",
+    "EPL_MOBILE":"Mobile homes",
+    "EPL_MUNIT":"Housing in structures with 10 or more units",
+    "EPL_NOVEH":"Households with no vehicle available"
+
+}
+var themeDisplayTextFull = {
+    "EPL_POV":"Persons below poverty",
+    "EPL_PCI":"Per capita income",
+    "EPL_UNEMP":"Civilian (age 16+) unemployed",
+    "EPL_NOHSDP":"Persons with no high school diploma (age25+)",
+
+    "EPL_AGE17":"Persons aged 17 and younger",
+    "EPL_AGE65":"Persons aged 65 and older",
+    "EPL_DISABL":"Civilian noninstitutionalized population with a disability",
+    "EPL_SNGPNT":"Single parent households with children under 18",
+
+
+    "EPL_LIMENG":"of persons (age 5+) who speak English \"less than well\"",
+    "EPL_MINRTY":"minority (all persons except white, non - Hispanic)",
+
+    "EPL_CROWD":"households with more people than rooms",
+    "EPL_GROUPQ":"Persons in group quarters",
+    "EPL_MOBILE":"mobile homes",
+    "EPL_MUNIT":"housing in structures with 10 or more units",
+    "EPL_NOVEH":"households with no vehicle available"
 
 }
 
@@ -113,20 +143,21 @@ var svi = d3.csv("SVINewYork2018_CensusTract.csv")
 
 
 Promise.all([counties,svi])
+Promise.all([counties])
 .then(function(data){
-    ready(data[0],data[1])
+    ready(data[0])
 })
 //END SECTION 2 ////////////////////////////////////////////////////////
 
 
 //SECTION 3
 //main function after loading data - everything stems from the ready function right now
-function ready(counties,svi){
+function ready(counties){
 
 	//initial formatting of data
-    var dataByFIPS = turnToDictFIPS(svi)
-    var combinedGeojson = combineGeojson(dataByFIPS,counties)
-    pub.all = combinedGeojson
+ //   var dataByFIPS = turnToDictFIPS(svi)
+    var tallied = combineGeojson(counties)
+    pub.all = tallied//counties//combinedGeojson
 //	console.log(counties)
 	//console.log(combinedGeojson)
 
@@ -158,27 +189,65 @@ function ready(counties,svi){
 
         for(var t in themeContent){//for each metric under theme, add the name of the metric
 
-            d3.select("#measures")
-            .append("div")
+			// var checkList = d3.select("#measures")
+	// 		.append("label")
+	// 		.html(themeDisplayText[themeContent[t]])
+	//             .attr("class","measureLable")
+	//
+	// 		//.attr("for",themeContent[t])
+	// 		.attr("class","container")
+	//             .attr("theme",themeName)
+	// 		//.html(themeContent[t])
+	//
+	// 		            //.append("div")
+	// 		checkList.append("input")
+	// 		.attr("type","checkbox")
+	// 		.attr("checked","checked")
+	// 		checkList.append("span")
+	// 		.attr("class","checkmark")			//
+	// 		// .attr("id",themeContent[t])
+	// 		// .attr("name",themeContent[t])
+	// 		// .attr("value",themeContent[t])
+			
+
+            var item = d3.select("#measures").append("div").attr("id",themeContent[t])
+            .style("cursor","pointer")
+			
+            item.append("div").attr("class","checkbox").attr("id","checkbox_"+themeContent[t])
+			.style("display","inline-block")
+			
+            item.append("div").attr("class","check").attr("id","check_"+themeContent[t])
+			.style("display","inline-block")
+			
+			
+			
+			item.append("div")
             .attr("id",themeContent[t])
+			.style("display","inline-block")
             .attr("class","measureLable")
             .attr("theme",themeName)
-            .html(themeDisplayText[themeContent[t]])
+			.html(themeDisplayText[themeContent[t]])
             .style("cursor","pointer")
-			.style("border","1px solid black")
-            .style("background-color","#fff")//themeColors[themeName])
-            .on("click",function(){
+			//.style("border","1px solid black")
+           // .style("background-color","#fff")//themeColors[themeName])
+            
+			item.on("click",function(){
                     var id = d3.select(this).attr("id")
+					
 					//console.log(id)
 		            var themeGroup = d3.select(this).attr("theme")
 					//whenever a metric is clicked, check if it is on or off currently, and toggle to opposite
 	                if(toggleDictionary[id]==false){
-	                    d3.select(this).style("background-color","#fff")//themeColors[themeGroup])
+	                   // d3.select(this).style("background-color","#fff")//themeColors[themeGroup])
+	                    d3.select(this).style("color","#000")
+						d3.select("#checkbox_"+id).style("border","#000 1px solid")
 	                    toggleDictionary[id]=true
-
+						d3.select("#check_"+id).style("visibility","visible")
 	                }else{
-	                    d3.select(this).style("background-color","#aaa")
+	                    d3.select(this).style("color","#aaa")
 	                    toggleDictionary[id]=false
+						d3.select("#check_"+id).style("visibility","hidden")
+						d3.select("#checkbox_"+id).style("border","#aaaaaa 1px solid")
 	                }
 
 					//recalculate the overal SVI accordingly
@@ -314,6 +383,8 @@ function calculateTally(toggleDictionary){
 function turnToDictFIPS(data){
     var fipsDict = {}
     for(var i in data){
+		// console.log(data[i])
+		var county = data[i].COUNTY
       //need to change from FIPS to
         var fips = data[i]["FIPS"]
         //grab last 6 characters
@@ -327,10 +398,10 @@ function turnToDictFIPS(data){
 }
 
 //combine svi (i.e. all) with counties
-function combineGeojson(all,counties){
-
+function combineGeojson(counties){
+console.log(counties)
   //get column names from first object
-    var propertyKeys = Object.keys(all[Object.keys(all)[0]])
+    var propertyKeys = Object.keys(counties.features[0].properties)
     // var propertyKeys = Object.keys(all[0])
     for(var p in propertyKeys){
         var pkey = propertyKeys[p]
@@ -343,7 +414,7 @@ function combineGeojson(all,counties){
 
 			var countyFIPS = counties.features[c].properties.STCNTY
 	        var tractFIPS = counties.features[c].properties.FIPS.replace(countyFIPS,"")
-	        var data = all[tractFIPS]
+	        var data = counties.features[c].properties//all[tractFIPS]
 	        counties.features[c]["id"]=tractFIPS
 	        //var population = counties.features[c].properties.totalPopulation
 	        //for now PR is undefined
@@ -414,81 +485,90 @@ function drawMap(data){//,outline){
              "type":"geojson",
              "data":data
          })
+		 
 
 
 
 // JIA: This is where I tried to add another hover outline layer
-         map.addLayer({
-           'id': 'hoverOutline',
-           'type': 'line',
-           'source': 'counties',
-           'layout': {},
-           'paint': {
-             'line-color': 'white',
-             'line-width': [
-               'case',
-               ['boolean', ['feature-state', 'hover'], false],
-               10,
-               0
-             ]
-           }
-         })
-
+    
          map.addLayer({
              'id': 'counties',
              'type': 'fill',
              'source': 'counties',
              'paint': {
-             'fill-color': "red",
+             'fill-color': "#fff",
                  'fill-opacity':1
              },
              "filter": ["!=", "E_TOTPOP", 0] // filter out no population
-         })
-       //	map.setFilter("counties",["==","stateAbbr","NY"])
+         },"water")
+		 
+     	//map.setFilter("counties",["==","stateAbbr","NY"])
+          map.addLayer({
+            'id': 'hoverOutline',
+            'type': 'line',
+            'source': 'counties',
+            'layout': {},
+            'paint': {
+              'line-color': 'white',
+              'line-width': 1,// [
+ //                'case',
+ //                ['boolean', ['feature-state', 'hover'], false],
+ //                3,
+ //                .3
+ //              ]
+            }
+          },"water")
 
-		  console.log(map.getStyle().layers)
-    //  map.moveLayer('hoverOutline','counties'); // This was to try to bring the outline to the top
+		 // console.log(map.getStyle().layers)
+      map.moveLayer('hover','counties'); // This was to try to bring the outline to the top
 
       //JIA: below follows the hover example - https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
       // When the user moves their mouse over the state-fill layer, we'll update the
       // feature state for the feature under the mouse.
-      map.on('mousemove', 'hoverOutline', function (e) {
-        if (e.features.length > 0) {
-          if (hoverCountyID !== null) {
-            map.setFeatureState(
-              { source: "counties", id: hoverCountyID
-             },
-              { hover: false }
-            );
-          }
-          hoverCountyID = e.features[0].id;
-        //  console.log(e.features[0])
-          map.setFeatureState(
-            { source: "counties", id: hoverCountyID },
-            { hover: true }
-          )
-        }
-      })
+     // map.on('mousemove', 'counties', function (e) {
+ // 		 console.log(e.features[0])
+ //         if (e.features.length > 0) {
+ // 			 console.log(hoverCountyID)
+ //
+ //           if (hoverCountyID !== null) {
+ //             map.setFeatureState(
+ //               { source: "counties", id: hoverCountyID
+ //              },
+ //               { hover: false }
+ //             );
+ //           }
+ //           hoverCountyID = e.features[0].properties.FIPS;
+ //         //  console.log(e.features[0])
+ //           map.setFeatureState(
+ //             { source: "counties", id: hoverCountyID },
+ //             { hover: true }
+ //           )
+ //         }
+ //       })
+ //
+ // 	   //When the mouse leaves the state-fill layer, update the feature state of the
+ // 	   //previously hovered feature.
+ // 	   map.on('mouseleave', 'hoverOutline', function () {
+ // 	     if (hoverCountyID !== null) {
+ // 	       map.setFeatureState(
+ // 	         { source: "counties",
+ // 	           id: hoverCountyID },
+ // 	         { hover: false }
+ // 	       )
+ // 	     }
+ // 	     hoverCountyID = null;
+ // 	   })
+ //
+ //     })
 
-      // When the mouse leaves the state-fill layer, update the feature state of the
-      // previously hovered feature.
-      map.on('mouseleave', 'hoverOutline', function () {
-        if (hoverCountyID !== null) {
-          map.setFeatureState(
-            { source: "counties",
-              id: hoverCountyID },
-            { hover: false }
-          )
-        }
-        hoverCountyID = null;
-      })
-     })
-
-     var popup = new mapboxgl.Popup({
-         closeButton: false,
-         closeOnClick: false
-     });
-
+     // var popup = new mapboxgl.Popup({
+     //     closeButton: false,
+     //     closeOnClick: false
+      });
+   // map.on('mousemove', 'hoverOutline', function(e) {
+   //   		 var feature = e.features[0]
+   // 		 console.log(feature["properties"].FIPS)
+   // })
 	 //detects mouse on counties layer inorder to get data for where mouse is
      map.on('mousemove', 'counties', function(e) {
          var feature = e.features[0]
@@ -496,6 +576,9 @@ function drawMap(data){//,outline){
          map.getCanvas().style.cursor = 'pointer';
 
          if(feature["properties"].FIPS!=undefined){
+		 	// console.log(feature["properties"])
+			 
+			 map.setFilter("hoverOutline",["==","FIPS",feature["properties"].FIPS])
 
 			 //this section just sets the x and y of the popup
              var x = event.clientX+20;
