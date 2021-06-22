@@ -1,8 +1,8 @@
 body{
-	font-family:'Open Sans', sans-serif;
+	font-family:'Helvetica', sans-serif;
     font-weight:200;
 	color:#000000;
-    font-size:11px;
+    font-size:12px;
     padding:10px;
 }
 a{
@@ -25,7 +25,7 @@ a :hover{
 }
 .mapboxgl-popup-content{
     font-size:10px;
-    font-family:'Open Sans', sans-serif;
+	font-family:'Helvetica', sans-serif;
     color:#3983a8;
     width:200px;
 }
@@ -75,7 +75,8 @@ font-family: 'Hammersmith One', sans-serif;}
 
 #title{
     font-size:24px;
-    line-height:200%;
+    line-height:150%;
+	
 }
 #fluctuation{
     border-top:1px solid black;
@@ -248,17 +249,16 @@ font-family: 'Hammersmith One', sans-serif;}
  }
  #nav{
      width:290px;
-    /* height:100%;
-*/ margin:10px;
+     height:100%;
      padding:10px;
-     margin-top:100px;
      position:absolute;
      left:0px;
      top:0px;
+    background-color:rgba(255,255,255,1);
+	border-right:1px solid black;
 /*     overflow:auto;
-*//*     border:1px solid black;
-*/     background-color:rgba(255,255,255,1);
-        filter: drop-shadow(2px 2px 4px rgba(0,0,0,.2));
+     border:1px solid black;
+        filter: drop-shadow(2px 2px 4px rgba(0,0,0,.2));*/ 
 
  }
  #nav2{
@@ -305,7 +305,7 @@ select{
        -moz-appearance: none;
        appearance: none;
        padding: 5px;
-       font-family:'Open Sans', sans-serif;
+   	font-family:'Helvetica', sans-serif;
        font-size:10px;
        font-weight:200;
        width:200px;
@@ -325,20 +325,19 @@ select{
      font-style:italic;
      color:#DF6D2A;
  }
- #key{
+/* #key{
      z-index:999;
      width:400px;
      height:100px;
      margin:10px;
      background-color:none;
      border-bottom:1px solid #ddd;
- }
- #footerKey{
+ } #footerKey{
 	 z-index:0;
 	 background-color:none;
 	 bottom: 40px;
 	 position: fixed;
-	 /* align-content: center; */
+	 align-content: center; 
 	 left: 340px;
  }
  #footerKeyText{
@@ -346,11 +345,12 @@ select{
 	background-color:none;
 	bottom: 20px;
 	position: fixed;
-	/* align-content: center; */
+	 align-content: center; 
 	left: 340px;
 	font-size: 12px;
 	font-weight:400;
  }
+ */
 
  #mainMenu{
      position:fixed;
@@ -403,7 +403,7 @@ select{
      padding:20px;
  }
  .menu{
-     font-family: 'Open Sans', sans-serif;
+ 	font-family:'Helvetica', sans-serif;
      background:rgba(0,0,0,0);
      display: inline-block;
 		 margin: 0;
@@ -446,10 +446,9 @@ select{
      background-color:rgba(0,0,0,0);
  }
  #allocationTitle{
-	 margin-left: 10px;
-		font-style:italic;
-		font-size:14px;
+		font-size:11px;
 		margin-bottom: 10px;
+		font-weight:bold;
  }
  #mainTitle{
 	 font-weight:bold;
@@ -515,14 +514,15 @@ select{
  .vac{
  }
  #activeThemesText{
-   font-size:14px;
-   padding:10px;
+   font-size:11px;
+   
  }
 
  .measureLable{
-   padding:5px;
-   margin-top:5px;
-   font-size:12px;
+   padding-left:5px;
+ /*  margin-top:5px;
+*/  font-size:12px;
+ line-height:80%;
  }
 
  #activeLegend{
@@ -550,6 +550,4 @@ select{
    z-index:999;
    background-color:#fff;
  }
- #nav{
-   margin-top:0px;
- }
+

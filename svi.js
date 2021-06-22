@@ -5,15 +5,12 @@
 //color map with new sums
 //sort list with new sums
 //////////////////////////////////////////////////////////
+
 //TODO
 //style list
 //style popup with more info - rank and also individual categories
-//style toggles
 //write intro/subtitle
-//add style to title 
 //do observations - make case studies
-//push left div down 10 px
-//add grid to key- 
 
 //SECTION 1
 //Setup variables, may still need some cleaning to get rid of unused ones
@@ -26,6 +23,7 @@ var pub = {
     stateAllocations:null,
     currentState:"NY"
 }
+var colors = ["#005EB8","#F4AE00","#E4002B"]
 var minMaxDictionary = {}
 var measures = ["EPL_POV","EPL_PCI","EPL_UNEMP","EPL_NOHSDP","EPL_AGE17","EPL_AGE65","EPL_DISABL","EPL_SNGPNT", "EPL_LIMENG","EPL_MINRTY","EPL_CROWD","EPL_GROUPQ","EPL_MOBILE", "EPL_MUNIT","EPL_NOVEH"]
 pub["activeThemes"]=measures
@@ -48,27 +46,49 @@ var themeGroupDisplayText = {
     THEME4:"Housing Type & Transportation"
 }
 var themeDisplayText = {
-    "EPL_POV":"Persons below poverty",
-    "EPL_PCI":"Per capita income",
-    "EPL_UNEMP":"Civilian (age 16+) unemployed",
-    "EPL_NOHSDP":"Persons with no high school diploma",
+    "EPL_POV":"% of population<span class=\"highlight\"> below poverty</span>",
+    "EPL_PCI":"$<span class=\"highlight\"> Per capita income</span>",
+    "EPL_UNEMP":"% of population<span class=\"highlight\"> unemployed</span>",
+    "EPL_NOHSDP":"% of population<span class=\"highlight\"> with no high school diploma</span>",
 
-    "EPL_AGE17":"Persons aged 17 and younger",
-    "EPL_AGE65":"Persons aged 65 and older",
-    "EPL_DISABL":"Persons with a disability",
-    "EPL_SNGPNT":"Single parent households with children under 18",
+    "EPL_AGE17":"% of population<span class=\"highlight\"> under 18</span>",
+    "EPL_AGE65":"% of population<span class=\"highlight\">  over 64</span>",
+    "EPL_DISABL":"% of population<span class=\"highlight\">  with a disability</span>",
+    "EPL_SNGPNT":"% of<span class=\"highlight\"> single parent households</span>",
 
 
-    "EPL_LIMENG":"Persons who speak English \"less than well\"",
-    "EPL_MINRTY":"Minority persons",
+    "EPL_LIMENG":"% of population who speak <span class=\"highlight\">limited english</span>",
+    "EPL_MINRTY":"% of population who are<span class=\"highlight\"> minorities</span>",
 
-    "EPL_CROWD":"Households with more people than rooms",
-    "EPL_GROUPQ":"Persons in group quarters",
-    "EPL_MOBILE":"Mobile homes",
-    "EPL_MUNIT":"Housing in structures with 10 or more units",
-    "EPL_NOVEH":"Households with no vehicle available"
+    "EPL_CROWD":"% of households with <span class=\"highlight\">more people than rooms</span>",
+    "EPL_GROUPQ":"% of population in <span class=\"highlight\">group quarters</span>",
+    "EPL_MOBILE":"% of housing are <span class=\"highlight\">mobile homes</span>",
+    "EPL_MUNIT":"% of housing in <span class=\"highlight\">structures with 10+ units</span>",
+    "EPL_NOVEH":"% of households with <span class=\"highlight\">no vehicle available</span>"
 
 }
+var measuresLabels = {
+  TOTPOP:"Total Persons",
+  HH:"Households",
+  HU:"Housing Units",
+AGE17:"under 18",
+AGE65:"over 64",
+DISABL:"with a disability",
+LIMENG:"who speak limited English",
+CROWD:"with more people than rooms",
+GROUPQ:"in group quarters",
+MINRTY:"who are Minorities",
+MOBILE:"that are Mobile homes",
+MUNIT:"in structures with 10+ units",
+NOHSDP:"with no high school diploma",
+NOVEH:"with no vehicle available",
+PCI:"Per capita income",
+POV:"below poverty",
+SNGPNT:"have a single parent w/children under 18",
+UNEMP:"unemployed"
+}
+
+
 var themeDisplayTextFull = {
     "EPL_POV":"Persons below poverty",
     "EPL_PCI":"Per capita income",
@@ -101,22 +121,44 @@ var themeColors = {
 }
 
 
-var data = [{"color":"green","value":0},{"color":"gold","value":125},{"color":"red","value":250}];
+var width = 200;
+var data = [
+	{"color":colors[0],"value":0},
+	{"color":colors[0],"value":width/5},
+	{"color":colors[1],"value":width/2},
+	{"color":colors[2],"value":width/5*4},
+	{"color":colors[2],"value":width}
+];
 var extent = d3.extent(data, d => d.value);
-
 var padding = 5;
-var width = 320;
 var innerWidth = width - (padding * 2);
-var barHeight = 15;
-var height = 15;
+var barHeight = 5;
+var height = 25;
 
 //this is the color scale for list on the right, it should match the map
 var colorScale = d3.scaleLinear()
-    .range(["green","gold","red"])
+    .range(colors)
     .domain([0,measures.length/2,measures.length])
 
-var svg = d3.select("body").append("svg").attr("width", width).attr("height", height).attr("id", "footerKey");
+var svg = d3.select("#key")
+.append("svg").attr("width", width).attr("height", height)//.attr("id", "footerKey");
 var g = svg.append("g");
+svg.append("text")
+	.text("High SVI")
+	.attr("x",200)
+	.attr("y",15)
+	.attr("text-anchor","end")
+	.style("font-size","10px")
+	.style("fill",colors[2])
+	.style("font-weight","bold")
+	.style("letter-spacing","1px")
+svg.append("text")
+	.text("Low SVI")
+	.attr("x",0).attr("y",15)
+	.style("font-size","10px")
+	.style("fill",colors[0])
+	.style("font-weight","bold")
+	.style("letter-spacing","1px")
 
 var defs = svg.append("defs");
 var linearGradient = defs.append("linearGradient").attr("id", "Gradient");
@@ -127,7 +169,7 @@ linearGradient.selectAll("stop")
     .attr("stop-color", d => d.color);
 
 g.append("rect")
-    .attr("width", innerWidth)
+    .attr("width", 200)
     .attr("height", barHeight)
     .style("fill", "url(#Gradient)");
 
@@ -169,7 +211,7 @@ function ready(counties){
 
 	//set everything on the check list to true to start - all things are on and included in overall svi
     for(var n in measures){toggleDictionary[measures[n]]=true}
-    d3.select("#activeThemesText").html("Showing sum of all "+pub.activeThemes.length+" themes.")
+    d3.select("#activeThemesText").html("Showing the sum of all "+pub.activeThemes.length+" variables.")
 
 
 	//sort according to current state and draw the list of counties on the right accordingly
@@ -185,33 +227,17 @@ function ready(counties){
             d3.select("#measures")
             .append("div")
             .attr("id",themeName)
-            .html(themeName+": "+themeGroupDisplayText[themeName])
+            .html(themeGroupDisplayText[themeName])
+			.style("font-size","18px")
+			.style("font-style","italic")
+			.style('padding',"6px")
+			.style('padding-top',"20px")
 
         for(var t in themeContent){//for each metric under theme, add the name of the metric
 
-			// var checkList = d3.select("#measures")
-	// 		.append("label")
-	// 		.html(themeDisplayText[themeContent[t]])
-	//             .attr("class","measureLable")
-	//
-	// 		//.attr("for",themeContent[t])
-	// 		.attr("class","container")
-	//             .attr("theme",themeName)
-	// 		//.html(themeContent[t])
-	//
-	// 		            //.append("div")
-	// 		checkList.append("input")
-	// 		.attr("type","checkbox")
-	// 		.attr("checked","checked")
-	// 		checkList.append("span")
-	// 		.attr("class","checkmark")			//
-	// 		// .attr("id",themeContent[t])
-	// 		// .attr("name",themeContent[t])
-	// 		// .attr("value",themeContent[t])
-			
-
             var item = d3.select("#measures").append("div").attr("id",themeContent[t])
             .style("cursor","pointer")
+			.style("margin-left","10px")
 			
             item.append("div").attr("class","checkbox").attr("id","checkbox_"+themeContent[t])
 			.style("display","inline-block")
@@ -228,8 +254,6 @@ function ready(counties){
             .attr("theme",themeName)
 			.html(themeDisplayText[themeContent[t]])
             .style("cursor","pointer")
-			//.style("border","1px solid black")
-           // .style("background-color","#fff")//themeColors[themeName])
             
 			item.on("click",function(){
                     var id = d3.select(this).attr("id")
@@ -239,14 +263,17 @@ function ready(counties){
 					//whenever a metric is clicked, check if it is on or off currently, and toggle to opposite
 	                if(toggleDictionary[id]==false){
 	                   // d3.select(this).style("background-color","#fff")//themeColors[themeGroup])
-	                    d3.select(this).style("color","#000")
-						d3.select("#checkbox_"+id).style("border","#000 1px solid")
+	                    d3.select(this).style("color","#000000")
+						d3.select("#checkbox_"+id).style("border","#000000 1px solid")
+						d3.select("#"+id).select(".highlight").style("color","#FB7139")
 	                    toggleDictionary[id]=true
 						d3.select("#check_"+id).style("visibility","visible")
 	                }else{
 	                    d3.select(this).style("color","#aaa")
 	                    toggleDictionary[id]=false
 						d3.select("#check_"+id).style("visibility","hidden")
+						d3.select("#"+id).select(".highlight").style("color","#aaaaaa")
+						
 						d3.select("#checkbox_"+id).style("border","#aaaaaa 1px solid")
 	                }
 
@@ -255,7 +282,7 @@ function ready(counties){
 					//recolor the map
 	                    calculateTally(toggleDictionary)
 	                    // updateList(rankCounties())
-                      drawList(rankCounties())
+                      	drawList(rankCounties())
 	                    colorByPriority(map)
 
             		})
@@ -275,7 +302,7 @@ function drawList(data){
     //console.log(Object.keys(data))
     data = data.filter(function(nullnum){
       return nullnum.tally !="-999"}) //filter out tally with -999
-    data = (data.slice(0,10)).concat(data.slice(-10))  //join top 10 and bottom 10
+    data = (data.slice(0,20)).concat(data.slice(-20))  //join top 10 and bottom 10
     d3.select("#rankings svg").remove()
     var svg = d3.select("#rankings").append("svg").attr("width",200).attr("height",data.length*12+12)
     svg.selectAll(".ranked")
@@ -294,6 +321,11 @@ function drawList(data){
     .attr("fill",function(d){
         return colorScale(d.tally)
     })
+	.on("mouseover",function(d){
+		console.log(d.county)
+			 map.setFilter("hoverOutline",["==","FIPS",d.county])
+		
+	})
 }
 function updateList(data){
      var svg = d3.select("#rankings svg").data(data)//.append("svg").attr("width",200).attr("height",data.length*12)
@@ -359,10 +391,10 @@ function calculateTally(toggleDictionary){
 
     }
     if(pub.activeThemes.length==measures.length){
-        d3.select("#activeThemesText").html("Showing sum of all "+pub.activeThemes.length+" themes.")
+        d3.select("#activeThemesText").html("Showing the sum of all "+pub.activeThemes.length+" variables.")
 
     }else{
-        d3.select("#activeThemesText").html("Showing sum of "+pub.activeThemes.length+" themes.")
+        d3.select("#activeThemesText").html("Showing the sum of "+pub.activeThemes.length+" variables.")
     }
 
 
@@ -461,18 +493,19 @@ function drawMap(data){//,outline){
     mapboxgl.accessToken = "pk.eyJ1IjoiYzRzci1nc2FwcCIsImEiOiJja2J0ajRtNzMwOHBnMnNvNnM3Ymw5MnJzIn0.fsTNczOFZG8Ik3EtO9LdNQ"
 
     var maxBounds = [
-      [-74.635258, 40.485374], // Southwest coordinates
+      [-74.635258, 40.2485374], // Southwest coordinates
       [-73.289334, 40.931799] // Northeast coordinates
     ];
     map = new mapboxgl.Map({
         container: 'map',
         style:"mapbox://styles/c4sr-gsapp/ckpwtdzjv4ty617llc8vp12gu",
         maxZoom:15,
-        zoom: 10,
-		    center:[-73.9848148987994, 40.75630990049773],
+        zoom: 9.5,
+		    center:[-73.8, 40.67],
         preserveDrawingBuffer: true,
         minZoom:1,
-        maxBounds: maxBounds
+        maxBounds: maxBounds,
+	   bearing: 28
     });
 
   var hoverCountyID = null;
@@ -509,66 +542,14 @@ function drawMap(data){//,outline){
             'source': 'counties',
             'layout': {},
             'paint': {
-              'line-color': 'white',
-              'line-width': 1,// [
- //                'case',
- //                ['boolean', ['feature-state', 'hover'], false],
- //                3,
- //                .3
- //              ]
+              'line-color': 'black',
+              'line-width': 1
             }
           },"water")
-
-		 // console.log(map.getStyle().layers)
-      map.moveLayer('hover','counties'); // This was to try to bring the outline to the top
-
-      //JIA: below follows the hover example - https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
-      // When the user moves their mouse over the state-fill layer, we'll update the
-      // feature state for the feature under the mouse.
-     // map.on('mousemove', 'counties', function (e) {
- // 		 console.log(e.features[0])
- //         if (e.features.length > 0) {
- // 			 console.log(hoverCountyID)
- //
- //           if (hoverCountyID !== null) {
- //             map.setFeatureState(
- //               { source: "counties", id: hoverCountyID
- //              },
- //               { hover: false }
- //             );
- //           }
- //           hoverCountyID = e.features[0].properties.FIPS;
- //         //  console.log(e.features[0])
- //           map.setFeatureState(
- //             { source: "counties", id: hoverCountyID },
- //             { hover: true }
- //           )
- //         }
- //       })
- //
- // 	   //When the mouse leaves the state-fill layer, update the feature state of the
- // 	   //previously hovered feature.
- // 	   map.on('mouseleave', 'hoverOutline', function () {
- // 	     if (hoverCountyID !== null) {
- // 	       map.setFeatureState(
- // 	         { source: "counties",
- // 	           id: hoverCountyID },
- // 	         { hover: false }
- // 	       )
- // 	     }
- // 	     hoverCountyID = null;
- // 	   })
- //
- //     })
-
-     // var popup = new mapboxgl.Popup({
-     //     closeButton: false,
-     //     closeOnClick: false
+			 map.setFilter("hoverOutline",["==","FIPS",""])
+		  
       });
-   // map.on('mousemove', 'hoverOutline', function(e) {
-   //   		 var feature = e.features[0]
-   // 		 console.log(feature["properties"].FIPS)
-   // })
+   
 	 //detects mouse on counties layer inorder to get data for where mouse is
      map.on('mousemove', 'counties', function(e) {
          var feature = e.features[0]
@@ -634,7 +615,14 @@ function colorByPriority(map){
     map.setPaintProperty("counties", 'fill-opacity',1)
     var matchString = {
     property: "tally",
-    stops: [[0,"#ddd"],[0.00001, "#00B140"],[pub.activeThemes.length/2,"#F4AE00"],[pub.activeThemes.length, "#E4002B"]]
+    stops: [
+		[0,"#aaa"],
+		[1, colors[0]],
+		[pub.activeThemes.length/5, colors[0]],
+		[pub.activeThemes.length/2,colors[1]],
+		[pub.activeThemes.length/5*4, colors[2]],
+		[pub.activeThemes.length, colors[2]]
+		]
     }
     map.setPaintProperty("counties", 'fill-color', matchString)
     d3.select("#coverage").style("display","block")

@@ -35,26 +35,46 @@
 <script type="text/javascript" src="js/d3.js"></script>
 <script type="text/javascript" src="js/queue.v1.min.js"></script>
     <style>
+        #title{
+          font-size:24px;
+			font-weight:100;
+			padding-bottom:0px;
+			padding-left:10px;
+  		  line-height:130%;
+        }
 		.checkbox{
 			height:10px;
 			width:10px;
-			border:1px solid black;
+			border:1px solid #000;
 		}
 		/* When the checkbox is checked, add a blue background */
 	
 		/* Style the checkmark/indicator */
 		.check {
 		  position:absolute;
-		  margin-top:6px;
-		  left: 14px;
-		  width: 5px;
-		  height: 12px;
-		  border: solid #005EB8;
+		  margin-top:0px;
+		  left: 23px;
+		  width: 3px;
+		  height: 7px;
+		  border: solid #FB7139;
 		  border-width: 0 3px 3px 0;
 		  -webkit-transform: rotate(45deg);
 		  -ms-transform: rotate(45deg);
 		  transform: rotate(45deg);
 		}
+        .svi{
+          font-weight:bold;
+/*		  color:#005EB8;
+*/        }
+		  .highlight{
+			  color:#FB7139;
+	          font-weight:bold;
+		  }
+		  #info{
+			  padding:10px;
+			  /*padding-right:8px;
+*/padding-bottom:0px;
+		  }
 </style>
 
 </head>
@@ -63,41 +83,48 @@
 
 
 <div id="nav">
-<label class="container">One
-  <input type="checkbox" checked="checked">
-  <span class="checkmark"></span>
-</label>
-
-	<div id="mainTitle" class="menu">
-	 	Defining Vulnerability
+	<div id="title" class="menu">
+        How are we<span class="svi"><br> Vulnerable </span>?
 		
 		</div>
-  <div id="activeThemesText" class="menu">text
-  </div>
+		<div id="info">
+		The Social Vulnerability Index is a composite of the 15 Census variables listed below. 
+		Each part of New York City has a different composition.
+		<br>
+		<br>
+		
+		<div id="key"></div>
+		Toggling vulnerability variables on/off reconfigures the SVI with and without specific criteria 
+		and changes the vulnerability landscape of the city.
+		<!-- <div id="footerKeyText">Low to High SVI</div> -->
+		<!-- <br>
+		<i>Turning variables on/off to recalculate the SVI.</i></div> -->
 
-  <div id="allocationTitle" class="menu">
-   Click below to turn individual categories on and off
-  </div>
+		</div>
+  <!-- <div id="allocationTitle" class="menu">
+  Click below to turn variables on and off
+  </div> -->
+  <!-- <div id="activeThemesText" > </div> -->
   <div id = "measures">
   </div>
   <div id="infoText" class="menu">
 
-    Columns used in this map have the prefixes below:<br>
+    <!-- Columns used in this map have the prefixes below:<br>
       EPL_ = Percentile percentage of each category<br>
       SPL_THEME = sum of EPLs in each of the 4 themes<br>
-      SPL_THEMES = sum of all SPL THEMEs<br>
+      SPL_THEMES = sum of all SPL THEMEs<br> -->
   </div>
 
 </div>
 
 
-	<div id="footerKeyText">Low to High SVI</div>
 	<div id="footerKey"></div>
 
 
 
-<div id="rankingsTitle">Counties ranked by current selection from most vulnerable to least</div>
-<div id="rankings"></div>
+<!-- <div id="rankingsTitle">Census tracts with highest SVI</div>
+<div id="rankingsTitlelowest">Census tracts with lowest SVI</div> -->
+<!-- <div id="rankings"></div> -->
 
 <div id="map"></div>
 <div id="mapPopup"></div>
