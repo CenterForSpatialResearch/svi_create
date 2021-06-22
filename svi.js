@@ -21,7 +21,7 @@ var pub = {
     stateAllocations:null,
     currentState:"NY"
 }
-var colors = ["#005EB8","#F4AE00","#E4002B"]
+var colors = ["#00A9CE","#fff","#FB7139"]
 var minMaxDictionary = {}
 var measures = ["EPL_POV","EPL_PCI","EPL_UNEMP","EPL_NOHSDP","EPL_AGE17","EPL_AGE65","EPL_DISABL","EPL_SNGPNT", "EPL_LIMENG","EPL_MINRTY","EPL_CROWD","EPL_GROUPQ","EPL_MOBILE", "EPL_MUNIT","EPL_NOVEH"]
 pub["activeThemes"]=measures
@@ -63,6 +63,28 @@ var themeDisplayText = {
     "EPL_MOBILE":"% of housing are <span class=\"highlight\">mobile homes</span>",
     "EPL_MUNIT":"% of housing in <span class=\"highlight\">structures with 10+ units</span>",
     "EPL_NOVEH":"% of households with <span class=\"highlight\">no vehicle available</span>"
+
+}
+var themeDisplayTextShort = {
+    "EPL_POV":"below poverty",
+    "EPL_PCI":"Per capita income",
+    "EPL_UNEMP":"unemployment",
+    "EPL_NOHSDP":"no high school diploma",
+
+    "EPL_AGE17":"under 18",
+    "EPL_AGE65":"over 64",
+    "EPL_DISABL":"disability",
+    "EPL_SNGPNT":"single parent households",
+
+
+    "EPL_LIMENG":"limited english",
+    "EPL_MINRTY":"minorities",
+
+    "EPL_CROWD":"more people than rooms",
+    "EPL_GROUPQ":"group quarters",
+    "EPL_MOBILE":"mobile homes",
+    "EPL_MUNIT":"structures with 10+ units",
+    "EPL_NOVEH":"no vehicle available"
 
 }
 var measuresLabels = {
@@ -644,13 +666,29 @@ function drawMap(data){//,outline){
               .style("left",x+"px")
               .style("top",y+"px")
 			 
-			 console.log(feature)
+			 var variableColorScale = d3.scaleLinear().domain([0,.5,1]).range(colors)
+			 
+			 var variableText = ""
+			 for(var a in pub.activeThemes){
+				 var key = pub.activeThemes[a]
+				 var value = feature["properties"][key]
+				 var color = variableColorScale(value)
+				 var displayKey =themeDisplayTextShort[key]
+				 
+				 if(value>.8){
+				 	variableText+="<span style=\"color:"+color+"\"><strong>HIGH "+displayKey+":</strong>"+value+"</span><br>"
+				 }else if(value<.2){
+				 	variableText+="<span style=\"color:"+color+"\"><strong>LOW "+displayKey+":</strong>"+value+"</span><br>"
+
+				 }
+			 }
 
             //this section sets the text content of the popup
-            var location = feature["properties"]["LOCATION"]
+            var locationName = feature["properties"]["LOCATION"].replace("New York County","Manhattan")
+			 .replace(", New York","").replace("Census","")
              //var countyName = feature["properties"]["COUNTY"]+" County, "+feature["properties"]["ST_ABBR"]
              var population = feature["properties"]["E_TOTPOP"]
-             var displayString = "<b>"+location+"</b>" + "<br> Population: "+population+"<br>"
+             var displayString = "<b>"+locationName+"</b>+<br>" //+ "<br> Population: "+population+"<br>"
              var activeTally = 0
              var activeCount = 0
              for(var t in toggleDictionary){
@@ -659,15 +697,17 @@ function drawMap(data){//,outline){
                       activeCount+=1
                  }
              }
+			 
+			 
 			 if(Math.round(activeTally*10000)/10000==0){
 	             displayString+="Not enough data for selected variables."
-	             d3.select("#mapPopup").html(displayString)
+	             d3.select("#mapPopup").html(displayString+"<br"+variableText)
 				 
 			 }else{
-	             displayString+="SVI: "
+	             displayString+="Overall SVI: "
 				 	+Math.round(activeTally*10000)/10000
 				 	+" out of "+ activeCount
-	             d3.select("#mapPopup").html(displayString)
+	             d3.select("#mapPopup").html(displayString+"<br>"+variableText)
 			 }
              
          }
@@ -692,9 +732,9 @@ function colorByPriority(map){
     stops: [
 		[0,"#aaa"],
 		[.000001, colors[0]],
-		//[pub.activeThemes.length/5, colors[0]],
+		[pub.activeThemes.length/5, colors[0]],
 		[pub.activeThemes.length/2,colors[1]],
-	//	[pub.activeThemes.length/5*4, colors[2]],
+		[pub.activeThemes.length/5*4, colors[2]],
 		[pub.activeThemes.length, colors[2]]
 		]
     }
