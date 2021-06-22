@@ -288,7 +288,7 @@ function ready(counties){
 	                   // d3.select(this).style("background-color","#fff")//themeColors[themeGroup])
 	                    d3.select(this).style("color","#000000")
 						d3.select("#checkbox_"+id).style("border","#000000 1px solid")
-						d3.select("#"+id).select(".highlight").style("color","#00B140")
+						d3.select("#"+id).select(".highlight").style("color","#000000")
 	                    toggleDictionary[id]=true
 						d3.select("#check_"+id).style("visibility","visible")
 	                }else{
