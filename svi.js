@@ -7,9 +7,7 @@
 //////////////////////////////////////////////////////////
 
 //TODO
-//style list
 //style popup with more info - rank and also individual categories
-//write intro/subtitle
 //do observations - make case studies
 
 //SECTION 1
@@ -121,7 +119,7 @@ var themeColors = {
 }
 
 
-var width = 200;
+var width = 250;
 var data = [
 	{"color":colors[0],"value":0},
 	{"color":colors[0],"value":width/5},
@@ -145,7 +143,7 @@ var svg = d3.select("#key")
 var g = svg.append("g");
 svg.append("text")
 	.text("High SVI")
-	.attr("x",200)
+	.attr("x",250)
 	.attr("y",15)
 	.attr("text-anchor","end")
 	.style("font-size","10px")
@@ -169,7 +167,7 @@ linearGradient.selectAll("stop")
     .attr("stop-color", d => d.color);
 
 g.append("rect")
-    .attr("width", 200)
+    .attr("width", 250)
     .attr("height", barHeight)
     .style("fill", "url(#Gradient)");
 
@@ -205,7 +203,8 @@ function ready(counties){
 
 	//draw the map
 	var map = drawMap(counties)
-
+    var sorted = rankCounties()
+    drawList (sorted);
 	//once everything is loaded, color the map
     map.once("idle",function(){ colorByPriority(map)})
 
@@ -215,8 +214,7 @@ function ready(counties){
 
 
 	//sort according to current state and draw the list of counties on the right accordingly
-    var sorted = rankCounties()
-    drawList (sorted);
+  
 
 
 
@@ -254,6 +252,9 @@ function ready(counties){
             .attr("theme",themeName)
 			.html(themeDisplayText[themeContent[t]])
             .style("cursor","pointer")
+			
+			item.on("mouseover",function(){d3.select(this).style("background-color","yellow")})
+			item.on("mouseout",function(){d3.select(this).style("background-color","#fff")})
             
 			item.on("click",function(){
                     var id = d3.select(this).attr("id")
@@ -265,7 +266,7 @@ function ready(counties){
 	                   // d3.select(this).style("background-color","#fff")//themeColors[themeGroup])
 	                    d3.select(this).style("color","#000000")
 						d3.select("#checkbox_"+id).style("border","#000000 1px solid")
-						d3.select("#"+id).select(".highlight").style("color","#FB7139")
+						d3.select("#"+id).select(".highlight").style("color","#00B140")
 	                    toggleDictionary[id]=true
 						d3.select("#check_"+id).style("visibility","visible")
 	                }else{
@@ -301,31 +302,87 @@ function ready(counties){
 function drawList(data){
     //console.log(Object.keys(data))
     data = data.filter(function(nullnum){
-      return nullnum.tally !="-999"}) //filter out tally with -999
-    data = (data.slice(0,20)).concat(data.slice(-20))  //join top 10 and bottom 10
-    d3.select("#rankings svg").remove()
-    var svg = d3.select("#rankings").append("svg").attr("width",200).attr("height",data.length*12+12)
-    svg.selectAll(".ranked")
-    .data(data)
-    .enter()
-    .append("text")
-    .attr("class","ranked")
-    .attr("id",function(d){return "_"+d.county})
-    .attr("county",function(d){return d.county})
-    .attr("x",function(d,i){return 20})
-    //.attr("y",function(d,i){return parseInt(d.order)*12})
-    .attr("y",function(d,i){return parseInt(data.indexOf(d))*12})
-    //.text(function(d,i){return (parseInt(d.order)+1)+". Tract "+d.county.toString().slice(-6)+", "+d.countyName+" "+ Math.round(d.tally*10000)/10000})
-    .text(function(d,i){return (parseInt(d.order)+1)+". "+d.countyName.slice(7,-16)+" "+ Math.round(d.tally*10000)/10000})
-    .attr("transform","translate(0,20)")
-    .attr("fill",function(d){
-        return colorScale(d.tally)
-    })
-	.on("mouseover",function(d){
-		console.log(d.county)
-			 map.setFilter("hoverOutline",["==","FIPS",d.county])
+      return nullnum.tally !="-999" &&nullnum.tally!=0}) //filter out tally with -999
+    var highs = data.slice(0,10)//
+	var lows = data.slice(-10)
+		d3.selectAll(".rankItem").remove()
+
+		console.log(highs)
+		console.log(lows)
+   // d3.select("#rankings svg").remove()
+		for(var i in highs){
+			 d3.select("#high")
+			.append("div")
+			.attr("id",highs[i].county)
+			.attr("class","rankItem")
+			.attr("cursor","pointer")
+			.html(//highs[i].order+". "
+				highs[i].countyName.replace("Census ","").replace("County","").replace(", New York","")
+				+"<strong>"+Math.round(highs[i].tally*100)/100+"</strong>"
+		)
+			.attr("cursor","pointer")
+			.style("margin-left","10px")
+			.on("mouseover",function(){
+				var id = d3.select(this).attr("id")
+				map.setFilter("hoverOutline",["==","FIPS",parseInt(id)])
+			})
+			.on("click",function(){
+				var id = d3.select(this).attr("id")
+				map.setFilter("hoverOutline",["==","FIPS",parseInt(id)])
+				var centroid = centroids[id]
+				map.flyTo({
+					center: centroid,
+					zoom:14
+				});
+			})
+			
+		}
 		
-	})
+		for(var i in lows){
+			 d3.select("#low")
+			.append("div")
+			.attr("class","rankItem")
+			.attr("id",lows[i].county)
+			.html(//lows[i].order+". "
+				lows[i].countyName.replace("Census ","").replace("County","").replace(", New York","")
+				+"<strong>"+Math.round(lows[i].tally*100)/100+"</strong>"
+			)
+			.attr("cursor","pointer")
+			.on("mouseover",function(){
+				var id = d3.select(this).attr("id")
+				map.setFilter("hoverOutline",["==","FIPS",parseInt(id)])
+			})
+			.style("margin-left","10px")
+			.on("click",function(){
+				var id = d3.select(this).attr("id")
+				map.setFilter("hoverOutline",["==","FIPS",parseInt(id)])
+				var centroid = centroids[id]
+				map.flyTo({
+					center: centroid,
+					zoom:14
+				});
+			})
+		}
+   
+   
+    // var svg = d3.select("#rankings").append("svg").attr("width",200).attr("height",data.length*12+12)
+ //    svg.selectAll(".ranked")
+ //    .data(data)
+ //    .enter()
+ //    .append("text")
+ //    .attr("class","ranked")
+ //    .attr("id",function(d){return "_"+d.county})
+ //    .attr("county",function(d){return d.county})
+ //    .attr("x",function(d,i){return 20})
+ //    //.attr("y",function(d,i){return parseInt(d.order)*12})
+ //    .attr("y",function(d,i){return parseInt(data.indexOf(d))/2})
+ //    //.text(function(d,i){return (parseInt(d.order)+1)+". Tract "+d.county.toString().slice(-6)+", "+d.countyName+" "+ Math.round(d.tally*10000)/10000})
+ //    .text(function(d,i){return (parseInt(d.order)+1)+". "+d.countyName.slice(7,-16)+" "+ Math.round(d.tally*10000)/10000})
+ //    .attr("transform","translate(0,20)")
+ //    .attr("fill",function(d){
+ //        return colorScale(d.tally)
+ //    })
+	
 }
 function updateList(data){
      var svg = d3.select("#rankings svg").data(data)//.append("svg").attr("width",200).attr("height",data.length*12)
@@ -358,7 +415,7 @@ function rankCounties(){
 			var countyName =  pub.all.features[c].properties.LOCATION
             var county = pub.all.features[c].properties.FIPS//.replace(countyFIPS,"")
             var tally = pub.all.features[c].properties.tally
-            countiesInState.push({county:county,tally:tally,countyName:countyName})
+            countiesInState.push({county:county,tally:tally,countyName:countyName,data:pub.all.features[c].properties})
         }
     }
     var sorted = countiesInState.sort(function(a,b){
@@ -431,7 +488,7 @@ function turnToDictFIPS(data){
 
 //combine svi (i.e. all) with counties
 function combineGeojson(counties){
-console.log(counties)
+//console.log(counties)
   //get column names from first object
     var propertyKeys = Object.keys(counties.features[0].properties)
     // var propertyKeys = Object.keys(all[0])
@@ -484,7 +541,7 @@ console.log(counties)
 
 //this draws the map, adds counties, and adds the pop up to the map
 function drawMap(data){//,outline){
- //	console.log(data);
+ 	//	console.log(data);
 
 	//makes new map in the #map div
 	d3.select("#map")
@@ -499,13 +556,13 @@ function drawMap(data){//,outline){
     map = new mapboxgl.Map({
         container: 'map',
         style:"mapbox://styles/c4sr-gsapp/ckpwtdzjv4ty617llc8vp12gu",
-        maxZoom:15,
-        zoom: 9.5,
-		    center:[-73.8, 40.67],
+       // maxZoom:15,
+        zoom: 9.7,
+		    center:[-73.95, 40.7],
         preserveDrawingBuffer: true,
         minZoom:1,
-        maxBounds: maxBounds,
-	   bearing: 28
+        maxBounds: maxBounds
+	 //  bearing: 28
     });
 
   var hoverCountyID = null;
@@ -551,6 +608,14 @@ function drawMap(data){//,outline){
       });
    
 	 //detects mouse on counties layer inorder to get data for where mouse is
+	  map.on("click","counties",function(e){
+	  	var fips = e.features[0]["properties"].FIPS
+		 var centroid = centroids[fips]
+		  map.flyTo({
+		 	 center: centroid,
+			  zoom:13
+		  });
+	  })
      map.on('mousemove', 'counties', function(e) {
          var feature = e.features[0]
 		// console.log(feature)
@@ -578,7 +643,8 @@ function drawMap(data){//,outline){
               d3.select("#mapPopup").style("visibility","visible")
               .style("left",x+"px")
               .style("top",y+"px")
-
+			 
+			 console.log(feature)
 
             //this section sets the text content of the popup
             var location = feature["properties"]["LOCATION"]
@@ -593,10 +659,17 @@ function drawMap(data){//,outline){
                       activeCount+=1
                  }
              }
-             displayString+="sum of currently selected categories: "
-			 	+Math.round(activeTally*10000)/10000
-			 	+" out of possible "+ activeCount
-             d3.select("#mapPopup").html(displayString)
+			 if(Math.round(activeTally*10000)/10000==0){
+	             displayString+="Not enough data for selected variables."
+	             d3.select("#mapPopup").html(displayString)
+				 
+			 }else{
+	             displayString+="SVI: "
+				 	+Math.round(activeTally*10000)/10000
+				 	+" out of "+ activeCount
+	             d3.select("#mapPopup").html(displayString)
+			 }
+             
          }
 
 		 //when mouseleaves, popup is hidden
@@ -611,19 +684,21 @@ function drawMap(data){//,outline){
 //this is called when map is idle after first loading and then everytime the tally is changed
 function colorByPriority(map){
 	//console.log(pub.all)
+	console.log(pub.activeThemes)
     map.getSource('counties').setData(pub.all);
     map.setPaintProperty("counties", 'fill-opacity',1)
     var matchString = {
     property: "tally",
     stops: [
 		[0,"#aaa"],
-		[1, colors[0]],
-		[pub.activeThemes.length/5, colors[0]],
+		[.000001, colors[0]],
+		//[pub.activeThemes.length/5, colors[0]],
 		[pub.activeThemes.length/2,colors[1]],
-		[pub.activeThemes.length/5*4, colors[2]],
+	//	[pub.activeThemes.length/5*4, colors[2]],
 		[pub.activeThemes.length, colors[2]]
 		]
     }
+	
     map.setPaintProperty("counties", 'fill-color', matchString)
     d3.select("#coverage").style("display","block")
 }
