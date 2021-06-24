@@ -650,6 +650,10 @@ function drawMap(data){//,outline){
 			  zoom:13
 		  });
 	  })
+	  map.on("mouseleave","counties",function(){
+			 map.setFilter("hoverOutline",["==","FIPS",""])
+	  	
+	  })
      map.on('mousemove', 'counties', function(e) {
          var feature = e.features[0]
 		// console.log(feature)
