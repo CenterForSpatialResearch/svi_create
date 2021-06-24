@@ -87,12 +87,12 @@ font-family: 'Hammersmith One', sans-serif;}
     margin:0px;
     width:230px;
     /*height:70px;
-*/filter: drop-shadow(2px 2px 4px rgba(0,0,0,.2));
+*/filter: drop-shadow(2px 2px 4px rgba(0,0,0,.5));
 
 /*    border:1px solid #000;
 */    padding:10px;
     position:absolute;
-    background-color:rgba(255,255,255,.9);
+    background-color:rgba(255,255,255,1);
     visibility:hidden;
     z-index:9999;
     line-height:120%;

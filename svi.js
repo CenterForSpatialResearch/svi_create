@@ -339,8 +339,13 @@ function drawList(data){
 			.attr("class","rankItem")
 			.attr("cursor","pointer")
 			.html(//highs[i].order+". "
-				highs[i].countyName.replace("Census ","").replace("County","").replace(", New York","")
-				+"<strong>"+Math.round(highs[i].tally*100)/100+"</strong>"
+				highs[i].countyName.replace("Census ","")
+					.replace(", New York County"," Manhattan")
+					.replace(", Richmond County"," Staten Island")
+					.replace(", Kings County"," Brooklyn")
+					.replace("County","")
+					.replace(", New York","")
+				+" <strong>"+Math.round(highs[i].tally*100)/100+"</strong>"
 		)
 			.attr("cursor","pointer")
 			.style("margin-left","10px")
@@ -366,8 +371,13 @@ function drawList(data){
 			.attr("class","rankItem")
 			.attr("id",lows[i].county)
 			.html(//lows[i].order+". "
-				lows[i].countyName.replace("Census ","").replace("County","").replace(", New York","")
-				+"<strong>"+Math.round(lows[i].tally*100)/100+"</strong>"
+				lows[i].countyName.replace("Census ","")
+					.replace(", New York County"," Manhattan")
+					.replace(", Richmond County"," Staten Island")
+					.replace(", Kings County"," Brooklyn")
+					.replace("County","")
+					.replace(", New York","")
+				+" <strong>"+Math.round(lows[i].tally*100)/100+"</strong>"
 			)
 			.attr("cursor","pointer")
 			.on("mouseover",function(){
@@ -602,7 +612,17 @@ function drawMap(data){//,outline){
 
 
 // JIA: This is where I tried to add another hover outline layer
-    
+         map.addLayer({
+           'id': 'hoverOutline',
+           'type': 'line',
+           'source': 'counties',
+           'layout': {},
+           'paint': {
+             'line-color': '#F4AE00',
+			   'line-width': 5
+           }
+         },"road")
+		 
          map.addLayer({
              'id': 'counties',
              'type': 'fill',
@@ -612,19 +632,10 @@ function drawMap(data){//,outline){
                  'fill-opacity':1
              },
              "filter": ["!=", "E_TOTPOP", 0] // filter out no population
-         },"water")
+         },"hoverOutline")
 		 
      	//map.setFilter("counties",["==","stateAbbr","NY"])
-          map.addLayer({
-            'id': 'hoverOutline',
-            'type': 'line',
-            'source': 'counties',
-            'layout': {},
-            'paint': {
-              'line-color': 'black',
-              'line-width': 1
-            }
-          },"water")
+        
 			 map.setFilter("hoverOutline",["==","FIPS",""])
 		  
       });
@@ -632,6 +643,7 @@ function drawMap(data){//,outline){
 	 //detects mouse on counties layer inorder to get data for where mouse is
 	  map.on("click","counties",function(e){
 	  	var fips = e.features[0]["properties"].FIPS
+		  map.setFilter(hoverOUtline,["==","FIPS",fips])
 		 var centroid = centroids[fips]
 		  map.flyTo({
 		 	 center: centroid,
