@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	  <meta charset="UTF-8">
+    <title>SVI v0.1</title>
+
+    <meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <!-- <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"> -->
+    <link rel="stylesheet" type="text/css" href="css/dc.css"/>
+  <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css' rel='stylesheet' />
+
+  <link href='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css' rel='stylesheet' />
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&family=Raleway:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@700&family=Coda+Caption:wght@800&family=Hammersmith+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/geocoder.css"/>
+    <link rel="stylesheet" type="text/css" href="css/20200825.css"/>
+
+<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous">
+</script>
+<script src="js/jquery.mousefollow.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="js/d3.js"></script>
+<script type="text/javascript" src="js/queue.v1.min.js"></script>
+    <style>
+        #title{
+          font-size:36px;
+			font-weight:100;
+			padding-bottom:0px;
+			padding-left:10px;
+  		  line-height:130%;
+        }
+		.checkbox{
+			height:10px;
+			width:10px;
+			border:1px solid #000;
+		}
+		/* When the checkbox is checked, add a blue background */
+	
+		/* Style the checkmark/indicator */
+		.check {
+		  position:absolute;
+		  margin-top:0px;
+		  left: 23px;
+		  width: 3px;
+		  height: 7px;
+		  border: solid #000;
+		  border-width: 0 3px 3px 0;
+		  -webkit-transform: rotate(45deg);
+		  -ms-transform: rotate(45deg);
+		  transform: rotate(45deg);
+		}
+        .svi{
+          font-weight:bold;
+/*		  color:#005EB8;
+*/        }
+		  .highlight{
+			  color:#000000;
+	          font-weight:bold;
+		  }
+		  #high{
+			  color:#FB7139;
+		  }
+		  #low{
+			  color:#00A9CE;
+		  }
+		  #info{
+			  padding:10px;
+			  /*padding-right:8px;
+*/				padding-bottom:0px;
+			  font-size:14px;
+		  }
+		  .subtitle{
+			  font-weight:bold;
+			  font-size:14px;
+		  }
+		  #key{
+			  position:fixed;
+			  left:320px;
+			  bottom:10px;
+			  background-color:black;
+			  padding:20px;
+		  }
+</style>
+
+</head>
+
+<body>
+
+
+<div id="nav">
+	<div id="title" class="menu">
+        How are we<span class="svi"><br> Vulnerable </span>?
+		
+		</div>
+		<div id="info">
+		The Social Vulnerability Index is a composite of the 15 Census variables listed below. 
+		Each part of New York City has a different composition.
+		<br>
+		<br>
+		
+		Toggling the vulnerability variables below reconfigures the SVI to include/exclude specific variables 
+		and changes the vulnerability landscape of the city.
+		<!-- <div id="footerKeyText">Low to High SVI</div> -->
+		<!-- <br>
+		<i>Turning variables on/off to recalculate the SVI.</i></div> -->
+
+		</div>
+  <!-- <div id="allocationTitle" class="menu">
+  Click below to turn variables on and off
+  </div> -->
+  <!-- <div id="activeThemesText" > </div> -->
+  <div id = "measures">
+  </div>
+  
+  <div id="infoText" class="menu">
+
+    <!-- Columns used in this map have the prefixes below:<br>
+      EPL_ = Percentile percentage of each category<br>
+      SPL_THEME = sum of EPLs in each of the 4 themes<br>
+      SPL_THEMES = sum of all SPL THEMEs<br> -->
+  </div>
+
+</div>
+		<div id="key"></div>
+
+
+	<!-- <div id="footerKey"></div> -->
+
+
+
+<div id="rankingsTitle">
+	 <div id="activeThemesText" > </div>
+<div id="high"><span class="subtitle"><br>Census tracts with highest SVI</span></div>
+<div id="low"><span class="subtitle"><br>Census tracts with lowest SVI</span></div>
+ <div id="rankings"></div>
+</div>
+
+
+<div id="map"></div>
+<div id="mapPopup"></div>
+
+
+
+
+<script type="text/javascript" src="centroids.js"></script>
+<script type="text/javascript" src="svi_nevada.js"></script>
+
+
+</body>
+</html>
